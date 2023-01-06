@@ -548,3 +548,64 @@ function Get-SchemaObjectName
         return "none"
     }
 }
+
+function Assert-ADPSProvider
+{
+    [CmdletBinding()]
+    param ()
+
+    $activeDirectoryPSProvider = Get-PSProvider -PSProvider 'ActiveDirectory' -ErrorAction SilentlyContinue
+
+    if ($null -eq $activeDirectoryPSProvider)
+    {
+        Write-Verbose -Message $script:localizedData.AdPsProviderNotFound -Verbose
+        Import-Module -Name 'ActiveDirectory' -Force
+        try
+        {
+            $activeDirectoryPSProvider = Get-PSProvider -PSProvider 'ActiveDirectory'
+        }
+        catch
+        {
+            Write-Error -Exception $_.Exception -Message 'Error installing the Active Directory PS Provider.'
+        }
+    }
+}
+
+<#
+    .SYNOPSIS
+        Asserts if the AD PS Drive has been created, and creates one if not.
+    .PARAMETER Root
+        Specifies the AD path to which the drive is mapped.
+    .NOTES
+        Throws an exception if the PS Drive cannot be created.
+#>
+function Assert-ADPSDrive
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter()]
+        [System.String]
+        $Root = '//RootDSE/'
+    )
+
+    Assert-ADPSProvider
+
+    $activeDirectoryPSDrive = Get-PSDrive -Name AD -ErrorAction SilentlyContinue
+
+    if ($null -eq $activeDirectoryPSDrive)
+    {
+        Write-Verbose -Message 'Creating new AD: PSDrive.' -Verbose
+
+        try
+        {
+            New-PSDrive -Name AD -PSProvider 'ActiveDirectory' -Root $Root -Scope Global -ErrorAction 'Stop' |
+                Out-Null
+        }
+        catch
+        {
+            $errorMessage = $script:localizedData.CreatingNewADPSDriveError
+            Write-Error -Exception $_.Exception -Message 'Error creating AD: PS Drive.'
+        }
+    }
+}

@@ -47,6 +47,7 @@ Function Get-TargetResource
 
     Assert-Module -ModuleName 'ActiveDirectory'
     Import-Module -Name 'ActiveDirectory' -Verbose:$false
+    Assert-ADPSDrive
 
     $nameSpace = "root/Microsoft/Windows/DesiredStateConfiguration"
     $cimAccessControlList = New-Object -TypeName 'System.Collections.ObjectModel.Collection`1[Microsoft.Management.Infrastructure.CimInstance]'
@@ -137,6 +138,7 @@ Function Set-TargetResource
 
     Assert-Module -ModuleName 'ActiveDirectory'
     Import-Module -Name 'ActiveDirectory' -Verbose:$false
+    Assert-ADPSDrive
 
     $path = Join-Path -Path "AD:\" -ChildPath $DistinguishedName
 
@@ -250,6 +252,7 @@ Function Test-TargetResource
 
     Assert-Module -ModuleName 'ActiveDirectory'
     Import-Module -Name 'ActiveDirectory' -Verbose:$false
+    Assert-ADPSDrive
 
     $inDesiredState = $true
     $path = Join-Path -Path "AD:\" -ChildPath $DistinguishedName
