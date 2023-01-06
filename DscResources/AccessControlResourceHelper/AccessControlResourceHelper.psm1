@@ -604,7 +604,6 @@ function Assert-ADPSDrive
         }
         catch
         {
-            $errorMessage = $script:localizedData.CreatingNewADPSDriveError
             Write-Error -Exception $_.Exception -Message 'Error creating AD: PS Drive.'
         }
     }
